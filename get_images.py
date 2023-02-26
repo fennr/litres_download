@@ -48,7 +48,6 @@ def login_litres(driver):
     password_in.send_keys(PASSWORD)
     time.sleep(1)
     password_in.send_keys(Keys.RETURN)
-
     time.sleep(2)
 
 
