@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "litres-download"
+version = "0.1.0"
+description = "Скачивание купленных книг на litres.ru"
+authors = ["fennr <fenrir1121@gmail.com>"]
+readme = "README.md"
+packages = [{include = "litres_download"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fpdf = "^1.7.2"
+selenium = "^4.8.2"
+webdriver-manager = "^3.8.5"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
