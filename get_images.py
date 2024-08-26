@@ -84,7 +84,7 @@ def load_books(driver):
         except exceptions.NoSuchElementException:
             driver.get(URL_BOOKS.format(i, "gif", BOOK_ID))
             time.sleep(2)
-            img = driver.find_element(By.TAG_NAME, "img")
+            img = driver.find_element(By.TAG_NAME, "gif")
         with open(f"{BOOK_NAME}_{BOOK_ID}/{i}.png", "wb") as file:
             file.write(img.screenshot_as_png)
 
