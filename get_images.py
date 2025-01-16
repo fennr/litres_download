@@ -40,11 +40,12 @@ def create_driver():
 def login_litres(driver):
     driver.get(URL_LOGIN)
 
-    username_in = driver.find_element(by=By.NAME, value='login')
+    username_in = driver.find_element(by=By.NAME, value='email')
     username_in.click()
     username_in.send_keys(LOGIN)
-
-    password_in = driver.find_element(by=By.ID, value='open_pwd_main')
+    username_in.send_keys(Keys.RETURN)
+    time.sleep(2)
+    password_in = driver.find_element(by=By.NAME, value='pwd')
     password_in.send_keys(PASSWORD)
     time.sleep(1)
     password_in.send_keys(Keys.RETURN)
@@ -77,16 +78,14 @@ def load_books(driver):
     print(f"create dir {BOOK_NAME}_{BOOK_ID}")
     os.makedirs(f"{BOOK_NAME}_{BOOK_ID}")
     for i in range(PAGES):
-        try:
-            driver.get(URL_BOOKS.format(i, "jpg", BOOK_ID))
-            time.sleep(2)
-            img = driver.find_element(By.TAG_NAME, "img")
-        except exceptions.NoSuchElementException:
+        driver.get(URL_BOOKS.format(i, "jpg", BOOK_ID))
+        time.sleep(2)
+        if len(driver.find_elements(By.CLASS_NAME, "error_block")) > 0:
             driver.get(URL_BOOKS.format(i, "gif", BOOK_ID))
-            time.sleep(2)
-            img = driver.find_element(By.TAG_NAME, "gif")
+        time.sleep(2)
+        img = driver.find_element(By.TAG_NAME, "img")
         with open(f"{BOOK_NAME}_{BOOK_ID}/{i}.png", "wb") as file:
-            file.write(img.screenshot_as_png)
+                file.write(img.screenshot_as_png)
 
 
 def litres_loads():
