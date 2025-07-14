@@ -76,16 +76,20 @@ def scroll_down(driver):
 
 def load_books(driver):
     print(f"create dir {BOOK_NAME}_{BOOK_ID}")
-    os.makedirs(f"{BOOK_NAME}_{BOOK_ID}")
+    if not os.path.exists(f"{BOOK_NAME}_{BOOK_ID}"):
+        os.makedirs(f"{BOOK_NAME}_{BOOK_ID}")
+    type_file = "jpg"
+    driver.get(URL_BOOKS.format(0, "jpg", BOOK_ID))
+    if len(driver.find_elements(By.CLASS_NAME, "Error-module__LhUUaG__wrapper")) > 0:
+        type_file = "gif"
+    time.sleep(2)
     for i in range(PAGES):
-        driver.get(URL_BOOKS.format(i, "jpg", BOOK_ID))
-        time.sleep(2)
-        if len(driver.find_elements(By.CLASS_NAME, "error_block")) > 0:
-            driver.get(URL_BOOKS.format(i, "gif", BOOK_ID))
+        driver.get(URL_BOOKS.format(i, type_file, BOOK_ID))
         time.sleep(2)
         img = driver.find_element(By.TAG_NAME, "img")
         with open(f"{BOOK_NAME}_{BOOK_ID}/{i}.png", "wb") as file:
                 file.write(img.screenshot_as_png)
+
 
 
 def litres_loads():
