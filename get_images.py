@@ -1,6 +1,5 @@
 import os
 
-from selenium.common import exceptions
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.webdriver import WebDriver
@@ -34,7 +33,6 @@ def check_close(driver):
 def create_driver():
     chrome_options = Options()
     chrome_options.add_argument("--disable-extensions")
-    # chrome_service = Service("c:/temp/chromedriver.exe")
     chrome_service = Service(ChromeDriverManager().install())
     driver: WebDriver = webdriver.Chrome(service=chrome_service, options=chrome_options)
     return driver
@@ -96,16 +94,22 @@ def load_books(driver: WebDriver):
             secure=cookie['secure'],
         )
     for i in range(PAGES):
+        percent = ((i + 1) / PAGES) * 100
         src = URL_BOOKS.format(i, type_file, BOOK_ID)
         resp = session.get(src)
         if resp.status_code == requests.codes.not_found:
             type_file = 'gif'
             resp = session.get(URL_BOOKS.format(i, type_file, BOOK_ID))
         if resp.status_code != requests.codes.ok:
+            time.sleep(2)
+            resp = session.get(URL_BOOKS.format(i, type_file, BOOK_ID))
+        if resp.status_code != requests.codes.ok:
             raise
         with open(f"books/{BOOK_NAME}_{BOOK_ID}/{i}.{type_file}", "wb") as f:
             f.write(resp.content)
-        time.sleep(2)
+
+        if abs(percent - round(percent)) > 0.2:
+            print(f"Done: {round(percent, 2)}%")
 
 
 def litres_loads():
