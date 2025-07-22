@@ -3,11 +3,14 @@ import os
 from selenium.common import exceptions
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from config import URL_BOOKS, URL_LOGIN, BOOK_ID, BOOK_NAME, PAGES, LOGIN, PASSWORD
+
+import requests
 
 import time
 
@@ -33,7 +36,7 @@ def create_driver():
     chrome_options.add_argument("--disable-extensions")
     # chrome_service = Service("c:/temp/chromedriver.exe")
     chrome_service = Service(ChromeDriverManager().install())
-    driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
+    driver: WebDriver = webdriver.Chrome(service=chrome_service, options=chrome_options)
     return driver
 
 
@@ -74,22 +77,35 @@ def scroll_down(driver):
     print(f'scroll down exit after {count} scrolls')
 
 
-def load_books(driver):
+def load_books(driver: WebDriver):
     print(f"create dir {BOOK_NAME}_{BOOK_ID}")
-    if not os.path.exists(f"{BOOK_NAME}_{BOOK_ID}"):
-        os.makedirs(f"{BOOK_NAME}_{BOOK_ID}")
+    if not os.path.exists("books"):
+        os.mkdir("books")
+        if not os.path.exists(f"books/{BOOK_NAME}_{BOOK_ID}"):
+            os.makedirs(f"books/{BOOK_NAME}_{BOOK_ID}")
     type_file = "jpg"
     driver.get(URL_BOOKS.format(0, "jpg", BOOK_ID))
-    if len(driver.find_elements(By.CLASS_NAME, "Error-module__LhUUaG__wrapper")) > 0:
-        type_file = "gif"
     time.sleep(2)
+    session = requests.session()
+    for cookie in driver.get_cookies():
+        session.cookies.set(
+            domain=cookie['domain'],
+            name=cookie['name'],
+            value=cookie['value'],
+            path=cookie['path'],
+            secure=cookie['secure'],
+        )
     for i in range(PAGES):
-        driver.get(URL_BOOKS.format(i, type_file, BOOK_ID))
+        src = URL_BOOKS.format(i, type_file, BOOK_ID)
+        resp = session.get(src)
+        if resp.status_code == requests.codes.not_found:
+            type_file = 'gif'
+            resp = session.get(URL_BOOKS.format(i, type_file, BOOK_ID))
+        if resp.status_code != requests.codes.ok:
+            raise
+        with open(f"books/{BOOK_NAME}_{BOOK_ID}/{i}.{type_file}", "wb") as f:
+            f.write(resp.content)
         time.sleep(2)
-        img = driver.find_element(By.TAG_NAME, "img")
-        with open(f"{BOOK_NAME}_{BOOK_ID}/{i}.png", "wb") as file:
-                file.write(img.screenshot_as_png)
-
 
 
 def litres_loads():
