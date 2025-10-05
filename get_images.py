@@ -79,8 +79,8 @@ def load_books(driver: WebDriver):
     print(f"create dir {BOOK_NAME}_{BOOK_ID}")
     if not os.path.exists("books"):
         os.mkdir("books")
-        if not os.path.exists(f"books/{BOOK_NAME}_{BOOK_ID}"):
-            os.makedirs(f"books/{BOOK_NAME}_{BOOK_ID}")
+    if not os.path.exists(f"books/{BOOK_NAME}_{BOOK_ID}"):
+        os.makedirs(f"books/{BOOK_NAME}_{BOOK_ID}")
     type_file = "jpg"
     driver.get(URL_BOOKS.format(0, "jpg", BOOK_ID))
     time.sleep(2)
@@ -95,6 +95,7 @@ def load_books(driver: WebDriver):
         )
     for i in range(PAGES):
         percent = ((i + 1) / PAGES) * 100
+        type_file = 'jpeg'
         src = URL_BOOKS.format(i, type_file, BOOK_ID)
         resp = session.get(src)
         if resp.status_code == requests.codes.not_found:
