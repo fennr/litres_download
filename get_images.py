@@ -21,12 +21,12 @@ def check_close(driver):
     :return:
     """
     closed = False
-    s = driver.title
+    driver.title
     while not closed:
         try:
-            s = driver.title
+            driver.title
             time.sleep(1)
-        except:
+        except Exception:
             closed = True
 
 
@@ -81,7 +81,6 @@ def load_books(driver: WebDriver):
         os.mkdir("books")
     if not os.path.exists(f"books/{BOOK_NAME}_{BOOK_ID}"):
         os.makedirs(f"books/{BOOK_NAME}_{BOOK_ID}")
-    type_file = "jpg"
     driver.get(URL_BOOKS.format(0, "jpg", BOOK_ID))
     time.sleep(2)
     session = requests.session()
@@ -93,20 +92,26 @@ def load_books(driver: WebDriver):
             path=cookie['path'],
             secure=cookie['secure'],
         )
+
+    available_file_types = ['jpeg', 'jpg', 'gif']
+    file_types_to_check = available_file_types
+    saved_file_type = available_file_types[0]
     for i in range(PAGES):
         percent = ((i + 1) / PAGES) * 100
-        type_file = 'jpeg'
-        src = URL_BOOKS.format(i, type_file, BOOK_ID)
-        resp = session.get(src)
-        if resp.status_code == requests.codes.not_found:
-            type_file = 'gif'
-            resp = session.get(URL_BOOKS.format(i, type_file, BOOK_ID))
-        if resp.status_code != requests.codes.ok:
-            time.sleep(2)
-            resp = session.get(URL_BOOKS.format(i, type_file, BOOK_ID))
-        if resp.status_code != requests.codes.ok:
-            raise
-        with open(f"books/{BOOK_NAME}_{BOOK_ID}/{i}.{type_file}", "wb") as f:
+        for index, file_type in enumerate(file_types_to_check):
+            src = URL_BOOKS.format(i, file_type, BOOK_ID) 
+            resp = session.get(src)
+            if resp.status_code == requests.codes.not_found:
+                continue
+            if resp.status_code != requests.codes.ok:
+                time.sleep(2)
+                resp = session.get(src)
+            resp.raise_for_status()
+            if index != 0:
+                file_types_to_check = [file_type] + [item for item in available_file_types if item != file_type]
+            saved_file_type = file_type
+            break
+        with open(f"books/{BOOK_NAME}_{BOOK_ID}/{i}.{saved_file_type}", "wb") as f:
             f.write(resp.content)
 
         if abs(percent - round(percent)) > 0.2:
