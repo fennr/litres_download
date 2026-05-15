@@ -9,6 +9,8 @@
   - Пароль
   - ID книги
   - Количество страниц книги
+- Установить Google Chrome 
+  - https://github.com/password123456/setup-selenium-with-chrome-driver-on-ubuntu_debian
 - Запустить [get_images.py](get_images.py)
   - Ожидать пока он сохранит все страницы
 - Запустить [create_pdf.py](create_pdf.py)
