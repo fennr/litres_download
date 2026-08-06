@@ -11,20 +11,17 @@ images = []
 for file in folder:
     images.append(f"{path_to_folder}/{file}")
 
-print(images)
-
 f_image = Image.open(images[0]).convert('RGB')
-print(f"add page {images[0]}")
+print(f"\radd page {images[0]}", end="", flush=True)
 
-o_images = []
-for image_path in images[1:]:
-    img = Image.open(image_path).convert('RGB')
-    o_images.append(img)
-    print(f"add page {image_path}")
-
-print("create pdf...")
+def image_generator():
+    for image_path in images[1:]:
+        print(f"\radd page {image_path}", end="", flush=True)
+        yield Image.open(image_path).convert('RGB')
 
 output_path = f"books/{BOOK_NAME}_{BOOK_ID}.pdf"
-f_image.save(output_path, save_all=True, append_images=o_images)
 
-print("finish")
+f_image.save(output_path, save_all=True, append_images=image_generator())
+f_image.close()
+
+print("\nfinish")
